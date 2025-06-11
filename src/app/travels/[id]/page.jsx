@@ -18,9 +18,13 @@ const TravelDetailPage = () => {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`http://localhost:8080/api/travels/${id}`) // ajuste para o endereço do backend
-      .then((res) => res.json())
-      .then(setTravel);
+    fetch(`http://localhost:8080/api/travels/${id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Imagem:", data.imagem);
+      console.log("URL completa:", `http://localhost:8080${data.imagem}`);
+      setTravel(data);
+    });
   }, [id]);
 
   const handleDelete = async () => {
@@ -40,7 +44,11 @@ const TravelDetailPage = () => {
         <Typography variant="h4" mb={2}>{travel.titulo}</Typography>
         {travel.imagem && (
           <Box mb={2} display="flex" justifyContent="center">
-            <img src={travel.imagem} alt={travel.titulo} style={{ maxWidth: "100%", maxHeight: 300 }} />
+            <img
+              src={`http://localhost:8080${travel.imagem}`}
+              alt={travel.titulo}
+              style={{ maxWidth: "100%", maxHeight: 300 }}
+            />
           </Box>
         )}
         <Typography variant="subtitle1"><b>Destino:</b> {travel.destino}</Typography>

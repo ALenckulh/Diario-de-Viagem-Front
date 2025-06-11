@@ -17,30 +17,60 @@ const TravelCreatePage = () => {
     destino: "",
     feedback: "",
     duracao: "",
-    imagem: "",
+    imagem: null,
   });
+
   const router = useRouter();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    setForm({ ...form, imagem: e.target.files[0] });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    fetch("http://localhost:8080/api/travels", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, duracao: Number(form.duracao) }),
-    })
-      .then((res) => res.json())
-      .then(() => router.push("/travels"));
+
+    const formData = new FormData();
+    formData.append("titulo", form.titulo);
+    formData.append("descricao", form.descricao);
+    formData.append("destino", form.destino);
+    formData.append("feedback", form.feedback);
+    formData.append("duracao", form.duracao);
+    formData.append("imagem", form.imagem);
+
+    try {
+      const res = await fetch("http://localhost:8080/api/travels", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        router.push("/travels");
+      } else {
+        console.error("Erro ao salvar viagem.");
+      }
+    } catch (err) {
+      console.error("Erro de conexão com servidor:", err);
+    }
   };
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Paper sx={{ p: 3 }}>
-        <Typography variant="h4" mb={2}>Criar Viagem</Typography>
-        <Box component="form" onSubmit={handleSubmit} display="flex" flexDirection="column" gap={2}>
+        <Typography variant="h4" mb={2}>
+          Criar Viagem
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          display="flex"
+          flexDirection="column"
+          gap={2}
+        >
           <TextField
             label="Título"
             name="titulo"
@@ -76,11 +106,11 @@ const TravelCreatePage = () => {
             value={form.duracao}
             onChange={handleChange}
           />
-          <TextField
-            label="URL da Imagem"
-            name="imagem"
-            value={form.imagem}
-            onChange={handleChange}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            required
           />
           <Button type="submit" variant="contained" color="primary">
             Salvar
