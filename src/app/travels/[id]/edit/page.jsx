@@ -19,7 +19,7 @@ const TravelEditPage = () => {
     destino: "",
     feedback: "",
     duracao: "",
-    imagem: "",
+    imagem: null,
   });
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -46,15 +46,25 @@ const TravelEditPage = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    fetch(`http://localhost:8080/api/travels/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, duracao: Number(form.duracao) }),
-    })
-      .then((res) => res.json())
-      .then(() => router.push(`/travels/${id}`));
-  };
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append("titulo", form.titulo);
+  formData.append("descricao", form.descricao);
+  formData.append("destino", form.destino);
+  formData.append("feedback", form.feedback);
+  formData.append("duracao", form.duracao);
+  if (form.imagem instanceof File) {
+    formData.append("imagem", form.imagem);
+  }
+
+  fetch(`http://localhost:8080/api/travels/${id}`, {
+    method: "PUT",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then(() => router.push(`/travels/${id}`));
+};
 
   if (loading) {
     return (
@@ -104,11 +114,10 @@ const TravelEditPage = () => {
             value={form.duracao}
             onChange={handleChange}
           />
-          <TextField
-            label="URL da Imagem"
-            name="imagem"
-            value={form.imagem}
-            onChange={handleChange}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setForm({ ...form, imagem: e.target.files[0] })}
           />
           <Box display="flex" gap={2}>
             <Button type="submit" variant="contained" color="primary">
