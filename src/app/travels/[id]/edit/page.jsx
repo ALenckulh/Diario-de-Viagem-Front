@@ -121,6 +121,8 @@ const TravelEditPage = () => {
             onChange={handleChange}
             multiline
             rows={3}
+            inputProps={{ maxLength: 255 }}
+            helperText={`${form.descricao.length}/255`}
           />
           <FormControl required>
             <InputLabel id="feedback-label">Feedback</InputLabel>

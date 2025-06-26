@@ -53,11 +53,11 @@ const TravelCreatePage = () => {
   const [imageName, setImageName] = useState("");
   const [mounted, setMounted] = useState(false);
 
-  const router = useRouter();
-
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,6 +72,11 @@ const TravelCreatePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.imagem) {
+      alert("Selecione uma imagem para a viagem.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("titulo", form.titulo);
@@ -90,9 +95,12 @@ const TravelCreatePage = () => {
       if (res.ok) {
         router.push("/travels");
       } else {
-        console.error("Erro ao salvar viagem.");
+        const errorText = await res.text();
+        alert("Erro ao salvar viagem:\n" + errorText);
+        console.error("Erro ao salvar viagem:", errorText);
       }
     } catch (err) {
+      alert("Erro de conexão com servidor.");
       console.error("Erro de conexão com servidor:", err);
     }
   };
@@ -135,6 +143,8 @@ const TravelCreatePage = () => {
             onChange={handleChange}
             multiline
             rows={3}
+            inputProps={{ maxLength: 255 }}
+            helperText={`${form.descricao.length}/255`}
           />
           <FormControl required>
             <InputLabel id="feedback-label">Feedback</InputLabel>
@@ -179,7 +189,6 @@ const TravelCreatePage = () => {
               style={{ display: "none" }}
               id="imagem-upload"
               type="file"
-              name="imagem"
               onChange={handleFileChange}
               required
             />
