@@ -177,9 +177,30 @@ const TravelEditPage = () => {
               <span style={{ marginLeft: 12, verticalAlign: "middle" }}>
                 {form.imagem && form.imagem.name
                   ? form.imagem.name
-                  : "Nenhum arquivo selecionado"}
+                  : form.imagem
+                    ? (
+                        <a
+                          href={`http://localhost:8080${form.imagem}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "#1976d2", textDecoration: "underline" }}
+                        >
+                          {form.imagem.split("/").pop()}
+                        </a>
+                      )
+                    : "Nenhum arquivo selecionado"}
               </span>
             </label>
+            {/* Exibe preview da imagem atual se não houver nova selecionada */}
+            {form.imagem && typeof form.imagem === "string" && (
+              <Box mt={1} display="flex" justifyContent="center">
+                <img
+                  src={`http://localhost:8080${form.imagem}`}
+                  alt="Imagem atual"
+                  style={{ maxWidth: 180, maxHeight: 120, borderRadius: 8 }}
+                />
+              </Box>
+            )}
           </Box>
           <Box display="flex" gap={2}>
             <Button type="submit" variant="contained" color="primary">
