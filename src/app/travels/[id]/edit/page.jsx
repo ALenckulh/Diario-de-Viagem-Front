@@ -8,7 +8,38 @@ import {
   Button,
   Paper,
   Box,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Select,
 } from "@mui/material";
+import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
+import SentimentNeutralIcon from "@mui/icons-material/SentimentNeutral";
+import SentimentSatisfiedAlt from "@mui/icons-material/SentimentSatisfiedAlt";
+import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
+
+const feedbackOptions = [
+  {
+    value: "Ruim",
+    label: "Ruim",
+    icon: <SentimentVeryDissatisfiedIcon sx={{ color: "red", mr: 1 }} />,
+  },
+  {
+    value: "Mais ou menos",
+    label: "Mais ou menos",
+    icon: <SentimentNeutralIcon sx={{ color: "orange", mr: 1 }} />,
+  },
+  {
+    value: "Bom",
+    label: "Bom",
+    icon: <SentimentSatisfiedAlt sx={{ color: "#66bb6a", mr: 1 }} />,
+  },
+  {
+    value: "Excelente",
+    label: "Excelente",
+    icon: <SentimentVerySatisfiedIcon sx={{ color: "#388e3c", mr: 1 }} />,
+  },
+];
 
 const TravelEditPage = () => {
   const params = useParams();
@@ -19,7 +50,7 @@ const TravelEditPage = () => {
     destino: "",
     feedback: "",
     duracao: "",
-    imagem: null,
+    imagem: "",
   });
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -46,25 +77,15 @@ const TravelEditPage = () => {
   };
 
   const handleSubmit = (e) => {
-  e.preventDefault();
-
-  const formData = new FormData();
-  formData.append("titulo", form.titulo);
-  formData.append("descricao", form.descricao);
-  formData.append("destino", form.destino);
-  formData.append("feedback", form.feedback);
-  formData.append("duracao", form.duracao);
-  if (form.imagem instanceof File) {
-    formData.append("imagem", form.imagem);
-  }
-
-  fetch(`http://localhost:8080/api/travels/${id}`, {
-    method: "PUT",
-    body: formData,
-  })
-    .then((res) => res.json())
-    .then(() => router.push(`/travels/${id}`));
-};
+    e.preventDefault();
+    fetch(`http://localhost:8080/api/travels/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, duracao: Number(form.duracao) }),
+    })
+      .then((res) => res.json())
+      .then(() => router.push(`/travels/${id}`));
+  };
 
   if (loading) {
     return (
@@ -101,12 +122,36 @@ const TravelEditPage = () => {
             multiline
             rows={3}
           />
-          <TextField
-            label="Feedback"
-            name="feedback"
-            value={form.feedback}
-            onChange={handleChange}
-          />
+          <FormControl required>
+            <InputLabel id="feedback-label">Feedback</InputLabel>
+            <Select
+              labelId="feedback-label"
+              name="feedback"
+              value={form.feedback}
+              label="Feedback"
+              onChange={handleChange}
+              renderValue={(selected) => {
+                const option = feedbackOptions.find(
+                  (opt) => opt.value === selected
+                );
+                return (
+                  <Box display="flex" alignItems="center">
+                    {option?.icon}
+                    <span>{option?.label}</span>
+                  </Box>
+                );
+              }}
+            >
+              {feedbackOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  <Box display="flex" alignItems="center">
+                    {option.icon}
+                    <span>{option.label}</span>
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             label="Duração (dias)"
             name="duracao"
@@ -114,11 +159,26 @@ const TravelEditPage = () => {
             value={form.duracao}
             onChange={handleChange}
           />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setForm({ ...form, imagem: e.target.files[0] })}
-          />
+          <Box>
+            <input
+              accept="image/*"
+              style={{ display: "none" }}
+              id="imagem-upload"
+              type="file"
+              name="imagem"
+              onChange={e => setForm({ ...form, imagem: e.target.files[0] })}
+            />
+            <label htmlFor="imagem-upload">
+              <Button variant="outlined" component="span">
+                Escolher Imagem
+              </Button>
+              <span style={{ marginLeft: 12, verticalAlign: "middle" }}>
+                {form.imagem && form.imagem.name
+                  ? form.imagem.name
+                  : "Nenhum arquivo selecionado"}
+              </span>
+            </label>
+          </Box>
           <Box display="flex" gap={2}>
             <Button type="submit" variant="contained" color="primary">
               Salvar

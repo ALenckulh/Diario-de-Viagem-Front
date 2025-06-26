@@ -8,7 +8,38 @@ import {
   Button,
   Paper,
   Box,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Select,
 } from "@mui/material";
+import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
+import SentimentNeutralIcon from "@mui/icons-material/SentimentNeutral";
+import SentimentSatisfiedAlt from "@mui/icons-material/SentimentSatisfiedAlt";
+import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
+
+const feedbackOptions = [
+  {
+    value: "Ruim",
+    label: "Ruim",
+    icon: <SentimentVeryDissatisfiedIcon sx={{ color: "red", mr: 1 }} />,
+  },
+  {
+    value: "Mais ou menos",
+    label: "Mais ou menos",
+    icon: <SentimentNeutralIcon sx={{ color: "orange", mr: 1 }} />,
+  },
+  {
+    value: "Bom",
+    label: "Bom",
+    icon: <SentimentSatisfiedAlt sx={{ color: "#66bb6a", mr: 1 }} />,
+  },
+  {
+    value: "Excelente",
+    label: "Excelente",
+    icon: <SentimentVerySatisfiedIcon sx={{ color: "#388e3c", mr: 1 }} />,
+  },
+];
 
 const TravelCreatePage = () => {
   const [form, setForm] = useState({
@@ -19,8 +50,14 @@ const TravelCreatePage = () => {
     duracao: "",
     imagem: null,
   });
+  const [imageName, setImageName] = useState("");
+  const [mounted, setMounted] = useState(false);
 
   const router = useRouter();
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,7 +65,9 @@ const TravelCreatePage = () => {
   };
 
   const handleFileChange = (e) => {
-    setForm({ ...form, imagem: e.target.files[0] });
+    const file = e.target.files[0];
+    setForm({ ...form, imagem: file });
+    setImageName(file ? file.name : "");
   };
 
   const handleSubmit = async (e) => {
@@ -57,6 +96,10 @@ const TravelCreatePage = () => {
       console.error("Erro de conexão com servidor:", err);
     }
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -93,12 +136,36 @@ const TravelCreatePage = () => {
             multiline
             rows={3}
           />
-          <TextField
-            label="Feedback"
-            name="feedback"
-            value={form.feedback}
-            onChange={handleChange}
-          />
+          <FormControl required>
+            <InputLabel id="feedback-label">Feedback</InputLabel>
+            <Select
+              labelId="feedback-label"
+              name="feedback"
+              value={form.feedback}
+              label="Feedback"
+              onChange={handleChange}
+              renderValue={(selected) => {
+                const option = feedbackOptions.find(
+                  (opt) => opt.value === selected
+                );
+                return (
+                  <Box display="flex" alignItems="center">
+                    {option?.icon}
+                    <span>{option?.label}</span>
+                  </Box>
+                );
+              }}
+            >
+              {feedbackOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  <Box display="flex" alignItems="center">
+                    {option.icon}
+                    <span>{option.label}</span>
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             label="Duração (dias)"
             name="duracao"
@@ -106,12 +173,25 @@ const TravelCreatePage = () => {
             value={form.duracao}
             onChange={handleChange}
           />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            required
-          />
+          <Box>
+            <input
+              accept="image/*"
+              style={{ display: "none" }}
+              id="imagem-upload"
+              type="file"
+              name="imagem"
+              onChange={handleFileChange}
+              required
+            />
+            <label htmlFor="imagem-upload">
+              <Button variant="outlined" component="span">
+                Escolher Imagem
+              </Button>
+              <span style={{ marginLeft: 12, verticalAlign: "middle" }}>
+                {imageName || "Nenhum arquivo selecionado"}
+              </span>
+            </label>
+          </Box>
           <Button type="submit" variant="contained" color="primary">
             Salvar
           </Button>

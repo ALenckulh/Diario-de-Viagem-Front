@@ -4,11 +4,10 @@ import {
   Container,
   Typography,
   List,
-  ListItem,
-  ListItemText,
   Paper,
   Box,
 } from "@mui/material";
+import UserListItem from "../components/UserListItem";
 
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -22,21 +21,12 @@ const UsersPage = () => {
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Paper sx={{ p: 3 }}>
-        <Typography variant="h4" mb={2}>Usuários</Typography>
+        <Typography variant="h4" mb={2}>
+          Usuários
+        </Typography>
         <List>
           {users.map((user) => (
-            <ListItem key={user.id} divider>
-              <ListItemText
-                primary={user.nome}
-                secondary={
-                  <>
-                    <span>Email: {user.email}</span>
-                    <br />
-                    <span>Idade: {user.idade}</span>
-                  </>
-                }
-              />
-            </ListItem>
+            <UserListItem key={user.id} user={user} />
           ))}
         </List>
         {users.length === 0 && (

@@ -9,6 +9,10 @@ import {
   Box,
   Button,
 } from "@mui/material";
+import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
+import SentimentNeutralIcon from "@mui/icons-material/SentimentNeutral";
+import SentimentSatisfiedAlt from "@mui/icons-material/SentimentSatisfiedAlt";
+import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
 
 const TravelDetailPage = () => {
   const params = useParams();
@@ -19,12 +23,10 @@ const TravelDetailPage = () => {
   useEffect(() => {
     if (!id) return;
     fetch(`http://localhost:8080/api/travels/${id}`)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("Imagem:", data.imagem);
-      console.log("URL completa:", `http://localhost:8080${data.imagem}`);
-      setTravel(data);
-    });
+      .then((res) => res.json())
+      .then((data) => {
+        setTravel(data);
+      });
   }, [id]);
 
   const handleDelete = async () => {
@@ -34,6 +36,13 @@ const TravelDetailPage = () => {
       });
       router.push("/travels");
     }
+  };
+
+  const feedbackIcons = {
+    "Ruim": <SentimentVeryDissatisfiedIcon sx={{ color: "red", mr: 1, verticalAlign: "middle" }} />,
+    "Mais ou menos": <SentimentNeutralIcon sx={{ color: "orange", mr: 1, verticalAlign: "middle" }} />,
+    "Bom": <SentimentSatisfiedAlt sx={{ color: "#66bb6a", mr: 1, verticalAlign: "middle" }} />,
+    "Excelente": <SentimentVerySatisfiedIcon sx={{ color: "#388e3c", mr: 1, verticalAlign: "middle" }} />,
   };
 
   if (!travel) return <Container sx={{ mt: 4 }}><Typography>Carregando...</Typography></Container>;
@@ -53,7 +62,11 @@ const TravelDetailPage = () => {
         )}
         <Typography variant="subtitle1"><b>Destino:</b> {travel.destino}</Typography>
         <Typography variant="body1" mb={1}><b>Descrição:</b> {travel.descricao}</Typography>
-        <Typography variant="body2" mb={1}><b>Feedback:</b> {travel.feedback}</Typography>
+        <Typography variant="body2" mb={1}>
+          <b>Feedback:</b>{" "}
+          {travel.feedback && feedbackIcons[travel.feedback]}
+          {travel.feedback}
+        </Typography>
         <Typography variant="body2" mb={2}><b>Duração:</b> {travel.duracao} dias</Typography>
         <Box display="flex" gap={2} mt={2}>
           <Link href="/travels">
